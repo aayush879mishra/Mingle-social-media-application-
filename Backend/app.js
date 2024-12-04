@@ -6,10 +6,16 @@ import userRoute from "./src/routes/user.route.js";
 import postRoute from "./src/routes/post.route.js";
 import messageRoute from "./src/routes/message.route.js";
 import connectDB from "./src/config/db.js";
+import { app, server } from "./src/socket/socket.js";
+import path from "path";
+
 dotenv.config();
 
-const app=express();
 const port = process.env.PORT || 9000;
+
+const __dirname = path.resolve();
+// console.log(__dirname);
+
 app.get("/",(req,res)=>{
     return res.status(200).json({
         message:"I am coming from backend",
@@ -32,8 +38,15 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);
 app.use("/api/v1/message", messageRoute);
 
+app.use(express.static(path.join(__dirname, "./frontend/dist")));
 
-app.listen(port,()=>{
+app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+});
+
+
+
+server.listen(port,()=>{
     connectDB();
     console.log(`server is running on port ${port}`);
 });

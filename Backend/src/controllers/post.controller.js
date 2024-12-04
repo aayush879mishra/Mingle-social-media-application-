@@ -3,7 +3,7 @@ import cloudinary from "../utils/cloudinary.js";
 import { Post } from "../models/post.model.js";
 import { User } from "../models/user.model.js";
 import { Comment } from "../models/comment.model.js";
-// import { getReceiverSocketId, io } from "../socket/socket.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const addNewPost = async (req, res) => {
     try {
@@ -42,7 +42,7 @@ export const addNewPost = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error);
+        console.log(error.message);
     }
 }
 export const getAllPost = async (req, res) => {
@@ -132,20 +132,20 @@ export const dislikePost = async (req, res) => {
         await post.save();
 
         // implement socket io for real time notification
-        // const user = await User.findById(likeGarneWalaUserKoId).select('username profilePicture');
-        // const postOwnerId = post.author.toString();
-        // if(postOwnerId !== likeGarneWalaUserKoId){
-        //     // emit a notification event
-        //     const notification = {
-        //         type:'dislike',
-        //         userId:likeGarneWalaUserKoId,
-        //         userDetails:user,
-        //         postId,
-        //         message:'Your post was liked'
-        //     }
-        //     const postOwnerSocketId = getReceiverSocketId(postOwnerId);
-        //     io.to(postOwnerSocketId).emit('notification', notification);
-        // }
+        const user = await User.findById(likeGarneWalaUserKoId).select('username profilePicture');
+        const postOwnerId = post.author.toString();
+        if(postOwnerId !== likeGarneWalaUserKoId){
+            // emit a notification event
+            const notification = {
+                type:'dislike',
+                userId:likeGarneWalaUserKoId,
+                userDetails:user,
+                postId,
+                message:'Your post was liked'
+            }
+            const postOwnerSocketId = getReceiverSocketId(postOwnerId);
+            io.to(postOwnerSocketId).emit('notification', notification);
+        }
 
 
 
